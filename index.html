@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDH Spice Catalogue</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: white page, red top band, one list. Each product = photo + name, then one line per pack size (weight · price · Add / box counter). Maroon order bar, slide-in order panel. */
+:root{
+  --bg:#ffffff;
+  --band:#d7232c;
+  --red:#c81f28;
+  --red-soft:#fdeceb;
+  --ink:#3a0b20;
+  --muted:#7a5a66;
+  --line:#ecdfe2;
+  --dark:#24030f;
+  --body:"Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+}
+html{color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:96px}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* Header */
+.band{background:var(--band);color:#fff}
+.band .wrap{display:flex;justify-content:space-between;gap:12px;padding-top:11px;padding-bottom:11px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+header{padding:32px 0 20px}
+h1{color:var(--red);font-weight:800;font-size:clamp(28px,4.4vw,42px);line-height:1.1;margin:0;text-transform:uppercase;text-wrap:balance}
+.sub{margin:8px 0 0;color:var(--muted);font-weight:600}
+
+/* Toolbar */
+.toolbar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--line)}
+.toolbar .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:12px;padding-bottom:12px}
+.search{flex:1 1 260px;position:relative}
+.search input{width:100%;height:46px;border:2px solid var(--line);background:#fff;border-radius:10px;padding:0 14px 0 42px;font-size:16px}
+.search input:focus{border-color:var(--red);outline:none}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{height:46px;padding:0 16px;border-radius:10px;border:2px solid var(--line);background:#fff;cursor:pointer;font-size:15px;font-weight:700}
+.tabs button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+
+/* List */
+main{padding:8px 0 24px}
+.prod{display:grid;grid-template-columns:88px 1fr minmax(0,440px);gap:20px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.thumb{width:88px;height:88px;border-radius:10px;background:#fff;border:1px solid var(--line);overflow:hidden;display:grid;place-items:center}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.thumb.ph-bg{background:var(--red-soft);border-color:transparent}
+.thumb .ph{font-weight:800;font-size:22px;color:var(--red)}
+.pname h2{font-size:18px;font-weight:800;margin:0;line-height:1.25;text-transform:uppercase}
+.pname .note{font-size:14px;color:var(--muted);margin-top:2px;font-weight:500}
+.lines{display:flex;flex-direction:column;gap:10px}
+.vline{display:grid;grid-template-columns:84px 1fr 168px;gap:14px;align-items:center}
+.wpill{display:inline-flex;align-items:center;justify-content:center;height:34px;border-radius:999px;background:var(--red-soft);color:var(--red);border:2px solid #f6c9c7;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.price{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.price small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.add{height:46px;width:100%;border-radius:10px;border:2px solid var(--red);background:var(--red);color:#fff;font-weight:800;cursor:pointer;font-size:16px}
+.add:hover{background:#b01b23;border-color:#b01b23}
+.stepper{display:grid;grid-template-columns:46px 1fr 46px;align-items:center;height:46px;width:100%;border:2px solid var(--red);border-radius:10px;background:#fff;overflow:hidden}
+.stepper button{height:100%;border:0;background:var(--red-soft);cursor:pointer;font-size:24px;font-weight:700;color:var(--red)}
+.stepper button:hover{background:#f9d6d4}
+.stepper input{width:100%;height:100%;border:0;background:transparent;text-align:center;font-size:18px;font-variant-numeric:tabular-nums;font-weight:800;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.empty{padding:48px 0;text-align:center;color:var(--muted);font-size:17px}
+
+/* Order bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--dark);color:#fff;transform:translateY(110%);transition:transform .25s ease}
+.bar.show{transform:none}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px}
+.bar .sum{font-variant-numeric:tabular-nums;color:#e8c9d3;font-size:15px;font-weight:600}
+.bar .sum b{color:#fff;font-size:22px;font-weight:800;margin-right:12px}
+.btn{height:50px;padding:0 22px;border-radius:10px;border:2px solid var(--band);background:var(--band);color:#fff;font-weight:800;cursor:pointer;font-size:16px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.light{background:#fff;color:var(--ink);border-color:var(--line)}
+
+/* Panel */
+.scrim{position:fixed;inset:0;background:rgba(36,3,15,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.show{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(480px,100%);background:#fff;z-index:21;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.panel.show{transform:none}
+.phead{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;background:var(--band);color:#fff}
+.phead h3{font-weight:800;font-size:19px;margin:0;text-transform:uppercase}
+.x{height:40px;padding:0 14px;border-radius:10px;border:2px solid rgba(255,255,255,.6);background:transparent;cursor:pointer;font-size:15px;font-weight:700;color:#fff}
+.pbody{flex:1;overflow:auto;padding:6px 22px 22px}
+.pfoot{border-top:2px solid var(--line);padding:16px 22px 20px;display:flex;flex-direction:column;gap:12px}
+.line{display:grid;grid-template-columns:52px 1fr 128px;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.line .thumb{width:52px;height:52px}
+.line .thumb .ph{font-size:15px}
+.line .nm{font-weight:800;text-transform:uppercase;font-size:14px;line-height:1.3}
+.line .meta{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
+.line .meta b{color:var(--ink)}
+.line .stepper{height:40px;grid-template-columns:38px 1fr 38px}
+.line .stepper button{font-size:20px}
+.line .stepper input{font-size:16px}
+.totals{display:flex;justify-content:space-between;align-items:baseline;font-variant-numeric:tabular-nums}
+.totals span{color:var(--muted);font-weight:600}
+.totals b{font-size:24px;font-weight:800}
+form{display:grid;gap:12px;margin-top:6px}
+.field{display:grid;gap:5px;min-width:0}
+.field input,.field textarea{width:100%;min-width:0}
+.field label{font-size:14px;font-weight:700}
+.field input,.field textarea{border:2px solid var(--line);background:#fff;border-radius:10px;padding:11px 12px;font-size:16px}
+.field input:focus,.field textarea:focus{border-color:var(--red);outline:none}
+.field textarea{min-height:64px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sect{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:800;margin:22px 0 4px}
+.err{color:var(--red);font-size:14px;font-weight:700;min-height:1em}
+.done{padding-top:22px}
+.done h4{font-weight:800;font-size:24px;margin:0 0 6px;color:var(--red);text-transform:uppercase}
+.done p{margin:0;color:var(--muted);font-weight:600}
+pre.summary{white-space:pre-wrap;background:#fff8f8;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:13px;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:16px 0 0;max-height:360px;overflow:auto}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer;align-self:flex-start}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:700;opacity:0;transition:all .2s;z-index:30;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+footer{color:var(--muted);font-size:13px;padding:8px 0 24px}
+
+@media (max-width:820px){
+  .prod{grid-template-columns:72px 1fr;gap:12px 16px}
+  .thumb{width:72px;height:72px}
+  .lines{grid-column:1/-1}
+}
+@media (max-width:480px){
+  .wrap{padding:0 14px}
+  .vline{grid-template-columns:72px 1fr 150px;gap:10px}
+  .two{grid-template-columns:1fr}
+  .bar .sum b{display:block;margin:0}
+  .band .wrap span+span{display:none}
+  .line{grid-template-columns:44px 1fr 112px}
+  .line .thumb{width:44px;height:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="band"><div class="wrap"><span id="bandLeft">Wholesale catalogue</span><span>Prices in USD, per box</span></div></div>
+
+<header>
+  <div class="wrap">
+    <h1>MDH Spices &amp; Masalas</h1>
+    <p class="sub" id="facts"></p>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search, e.g. haldi" aria-label="Search" autocomplete="off">
+    </div>
+    <div class="tabs" role="group" aria-label="Show">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="spice" aria-pressed="false">Pure spices</button>
+      <button data-f="blend" aria-pressed="false">Masala blends</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div id="rows"></div>
+    <div class="empty" id="empty" hidden>Nothing found.</div>
+  </div>
+</main>
+
+<footer><div class="wrap">Prices exclude shipping.</div></footer>
+
+<div class="bar" id="bar">
+  <div class="wrap">
+    <div class="sum" id="barSum"></div>
+    <button class="btn" id="openOrder">View order</button>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-label="Your order" aria-hidden="true">
+  <div class="phead"><h3 id="ptitle">Your order</h3><button class="x" id="closeOrder">Close</button></div>
+  <div class="pbody" id="pbody"></div>
+  <div class="pfoot" id="pfoot"></div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ======================= SETTINGS ======================= */
+const CONFIG = {
+  // Google Apps Script web-app URL that saves orders to your Google Sheet (see README.md).
+  // Leave empty and the order screen shows a "Copy order" button instead.
+  orderEndpoint: "",
+  clientName: "",          // e.g. "Mr. Sharma" → "Prepared for Mr. Sharma" in the red band
+  sellerName: "",          // appears on the order summary
+  whatsapp: "",            // digits only, e.g. "919876543210" → backup "Send on WhatsApp" button
+  imageFolder: "images/web"
+};
+/* ======================================================== */
+
+const RAW = [
+["Amchur Powder","100gm",2.61],
+["Chana Masala","100gm",2.67],["Chana Masala","500gm",13.26],
+["Chat Masala","500gm",13.26],
+["Chicken Masala","100gm",2.67],
+["Dal Makhani Masala","100gm",2.55],
+["Deggi Mirch","100gm",2.97],["Deggi Mirch","500gm",14.78],["Deggi Mirch","1000gm",29.93],
+["Dhania Powder","100gm",2.21],["Dhania Powder","500gm",10.99],
+["Garam Masala","100gm",2.89],["Garam Masala","500gm",14.21],
+["Haldi Powder","100gm",2.26],["Haldi Powder","500gm",11.23],
+["Hing","10gm",1.26],
+["Jal Jeera Masala","100gm",2.49],
+["Jeera Powder","100gm",2.59],
+["Kali Mirch Powder","100gm",3.49],
+["Kashmiri Mirch","100gm",3.00],
+["Kasuri Methi","25gm",0.73],["Kasuri Methi","50gm",1.42],["Kasuri Methi","100gm",2.74],["Kasuri Methi","1000gm",25.11],
+["Kitchen King","100gm",2.74],["Kitchen King","500gm",13.59],["Kitchen King","1000gm",27.09],
+["Lal Mirch Powder","100gm",2.53],["Lal Mirch Powder","500gm",12.03],
+["Meat Masala","100gm",2.74],["Meat Masala","500gm",13.59],
+["Meat Masala Hanger","7gm",0.17],
+["Pav Bhaji Masala","100gm",2.68],
+["Rajma Masala","100gm",2.66],
+["Sabzi Masala","100gm",2.57],
+["Sambhar Masala","100gm",2.60],
+["Shahi Paneer Masala","100gm",2.83],
+["White Pepper","100gm",3.97]
+];
+const SPICES = new Set(["Amchur Powder","Deggi Mirch","Dhania Powder","Haldi Powder","Hing","Jeera Powder","Kali Mirch Powder","Kashmiri Mirch","Kasuri Methi","Lal Mirch Powder","White Pepper"]);
+const NOTES = {"Amchur Powder":"Dried mango","Deggi Mirch":"Red chilli","Dhania Powder":"Coriander","Haldi Powder":"Turmeric","Hing":"Asafoetida","Jeera Powder":"Cumin","Kali Mirch Powder":"Black pepper","Kashmiri Mirch":"Mild red chilli","Kasuri Methi":"Dried fenugreek","Lal Mirch Powder":"Red chilli","Meat Masala Hanger":"Sachet strip","White Pepper":"Safed mirch"};
+const IMAGES = new Set(["amchur-powder","chana-masala","chat-masala","chicken-masala","dal-makhani-masala","deggi-mirch","dhania-powder","garam-masala","haldi-powder","hing","jal-jeera-masala","jeera-powder","kali-mirch-powder","kashmiri-mirch","kasuri-methi","kitchen-king","lal-mirch-powder","meat-masala","meat-masala-hanger","pav-bhaji-masala","rajma-masala","sabzi-masala","shahi-paneer-masala","white-pepper"]);
+
+const grams = s => parseInt(s,10);
+const fmtSize = s => { const g = grams(s); return g >= 1000 ? (g/1000) + " kg" : g + " g"; };
+const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const slugOf = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const initials = n => n.split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const boxes = n => n + (n===1 ? " box" : " boxes");
+const round2 = n => Math.round(n*100)/100;
+
+const products = [];
+RAW.forEach(([name,size,price])=>{
+  let p = products.find(x=>x.name===name);
+  if(!p){ p = {name, slug:slugOf(name), type:SPICES.has(name)?"spice":"blend", variants:[]}; products.push(p); }
+  p.variants.push({id:slugOf(name+"-"+size), size, label:fmtSize(size), price});
+});
+products.forEach(p=>p.variants.sort((a,b)=>grams(a.size)-grams(b.size)));
+products.sort((a,b)=>a.name.localeCompare(b.name));
+const VARIANTS = {}; products.forEach(p=>p.variants.forEach(v=>VARIANTS[v.id]={...v,name:p.name,slug:p.slug}));
+
+function thumbHTML(slug, name){
+  if(IMAGES.has(slug)) return `<div class="thumb"><img src="${CONFIG.imageFolder}/${slug}.jpg" alt="${esc(name)}" loading="lazy" onerror="this.parentNode.classList.add('ph-bg');this.outerHTML='<span class=&quot;ph&quot;>${initials(name)}</span>'"></div>`;
+  return `<div class="thumb ph-bg"><span class="ph" aria-hidden="true">${initials(name)}</span></div>`;
+}
+
+/* ---- State ---- */
+const KEY = "mdh-order-v3";
+let cart = {};
+try{ cart = JSON.parse(localStorage.getItem(KEY)||"{}") || {}; }catch(e){ cart = {}; }
+Object.keys(cart).forEach(k=>{ if(!VARIANTS[k] || !(cart[k]>0)) delete cart[k]; });
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(cart)); }catch(e){} };
+let filter = "all", query = "", placed = null;
+
+document.getElementById("facts").textContent = `${products.length} products · ${RAW.length} pack sizes`;
+if(CONFIG.clientName) document.getElementById("bandLeft").textContent = "Prepared for " + CONFIG.clientName;
+
+/* ---- Quantity control: "Add" until something is in the order, then a − n + counter ---- */
+function qtyControl(id, label){
+  const n = cart[id]||0;
+  if(!n) return `<button type="button" class="add" data-id="${id}" data-act="add">Add</button>`;
+  return `<div class="stepper" data-id="${id}">
+    <button type="button" data-act="dec" aria-label="One box less">−</button>
+    <input type="number" min="0" max="9999" inputmode="numeric" value="${n}" aria-label="Boxes of ${esc(label)}">
+    <button type="button" data-act="inc" aria-label="One box more">+</button>
+  </div>`;
+}
+function setQty(id, n, focusSel){
+  n = Math.max(0, Math.min(9999, n|0));
+  const was = cart[id]||0;
+  if(n) cart[id]=n; else delete cart[id];
+  save();
+  document.querySelectorAll(`.qslot[data-id="${id}"]`).forEach(slot=>{
+    slot.innerHTML = qtyControl(id, VARIANTS[id].name+" "+VARIANTS[id].label);
+  });
+  if(focusSel){ const el = document.querySelector(`#rows .qslot[data-id="${id}"] ${focusSel}`); if(el) el.focus(); }
+  if(!was && n) toast(`Added ${VARIANTS[id].name} ${VARIANTS[id].label}`);
+  if(was && !n) toast(`Removed ${VARIANTS[id].name} ${VARIANTS[id].label}`);
+  renderBar();
+}
+function handleQtyClick(e){
+  const b = e.target.closest("button[data-act]"); if(!b) return false;
+  const slot = b.closest(".qslot"); if(!slot) return false;
+  const id = slot.dataset.id, n = cart[id]||0;
+  if(b.dataset.act==="add") setQty(id, 1, '[data-act="inc"]');
+  if(b.dataset.act==="inc") setQty(id, n+1, '[data-act="inc"]');
+  if(b.dataset.act==="dec") setQty(id, n-1, n-1>0?'[data-act="dec"]':'[data-act="add"]');
+  return true;
+}
+function handleQtyChange(e){
+  if(!e.target.matches(".stepper input")) return false;
+  const id = e.target.closest(".qslot").dataset.id;
+  setQty(id, parseInt(e.target.value,10)||0);
+  return true;
+}
+
+/* ---- Rows ---- */
+const rowsEl = document.getElementById("rows");
+function prodHTML(p){
+  return `<article class="prod">
+    ${thumbHTML(p.slug,p.name)}
+    <div class="pname"><h2>${p.name}</h2>${NOTES[p.name]?`<div class="note">${NOTES[p.name]}</div>`:""}</div>
+    <div class="lines">${p.variants.map(v=>`
+      <div class="vline">
+        <span class="wpill">${v.label}</span>
+        <div class="price">${money(v.price)}<small>per box</small></div>
+        <div class="qslot" data-id="${v.id}">${qtyControl(v.id, p.name+" "+v.label)}</div>
+      </div>`).join("")}</div>
+  </article>`;
+}
+function renderRows(){
+  const q = query.trim().toLowerCase();
+  const list = products.filter(p=>(filter==="all"||p.type===filter) &&
+    (!q || p.name.toLowerCase().includes(q) || (NOTES[p.name]||"").toLowerCase().includes(q)));
+  document.getElementById("empty").hidden = list.length>0;
+  rowsEl.innerHTML = list.map(prodHTML).join("");
+}
+rowsEl.addEventListener("click", handleQtyClick);
+rowsEl.addEventListener("change", handleQtyChange);
+
+/* ---- Totals & bar ---- */
+function totals(items=cart){
+  let bx=0, value=0, lines=0;
+  for(const id in items){ bx+=items[id]; value+=items[id]*VARIANTS[id].price; lines++; }
+  return {boxes:bx, value:round2(value), lines};
+}
+function renderBar(){
+  const t = totals();
+  document.getElementById("bar").classList.toggle("show", t.lines>0);
+  document.getElementById("barSum").innerHTML = `<b>${money(t.value)}</b>${boxes(t.boxes)}`;
+  if(panel.classList.contains("show") && !placed) renderPanelTotals();
+}
+
+/* ---- Order panel ---- */
+const panel = document.getElementById("panel"), scrim = document.getElementById("scrim");
+const pbody = document.getElementById("pbody"), pfoot = document.getElementById("pfoot");
+let details = {name:"",company:"",phone:"",email:"",address:"",notes:""};
+try{ Object.assign(details, JSON.parse(localStorage.getItem("mdh-details")||"{}")); }catch(e){}
+
+function openPanel(){ placed=null; renderPanel(); panel.classList.add("show"); scrim.classList.add("show"); panel.setAttribute("aria-hidden","false"); document.getElementById("closeOrder").focus(); }
+function closePanel(){ keepDetails(); panel.classList.remove("show"); scrim.classList.remove("show"); panel.setAttribute("aria-hidden","true"); if(placed){ placed=null; } }
+document.getElementById("openOrder").onclick = openPanel;
+document.getElementById("closeOrder").onclick = closePanel;
+scrim.onclick = closePanel;
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && panel.classList.contains("show")) closePanel(); });
+
+const sortedIds = items => Object.keys(items).sort((a,b)=>VARIANTS[a].name.localeCompare(VARIANTS[b].name)||grams(VARIANTS[a].size)-grams(VARIANTS[b].size));
+
+function renderPanel(){
+  if(placed) return renderPlaced();
+  document.getElementById("ptitle").textContent = "Your order";
+  const ids = sortedIds(cart);
+  if(!ids.length){ pbody.innerHTML = `<p class="empty">Your order is empty.</p>`; pfoot.innerHTML=""; return; }
+  pbody.innerHTML = `<div id="plines">${ids.map(id=>{ const v=VARIANTS[id];
+    return `<div class="line">
+      ${thumbHTML(v.slug,v.name)}
+      <div><div class="nm">${v.name}</div><div class="meta">${v.label} · ${money(v.price)} · <b id="lt-${id}">${money(cart[id]*v.price)}</b></div></div>
+      <div class="qslot" data-id="${id}">${qtyControl(id, v.name+" "+v.label)}</div>
+    </div>`;}).join("")}</div>
+    <div class="sect">Your details</div>
+    <form id="orderForm" novalidate>
+      <div class="field"><label for="f-name">Name *</label><input id="f-name" name="name" autocomplete="name" value="${esc(details.name)}"></div>
+      <div class="two">
+        <div class="field"><label for="f-phone">Phone *</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" value="${esc(details.phone)}"></div>
+        <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" value="${esc(details.email)}"></div>
+      </div>
+      <div class="field"><label for="f-company">Company</label><input id="f-company" name="company" autocomplete="organization" value="${esc(details.company)}"></div>
+      <div class="field"><label for="f-address">Delivery address</label><textarea id="f-address" name="address">${esc(details.address)}</textarea></div>
+      <div class="field"><label for="f-notes">Notes</label><textarea id="f-notes" name="notes">${esc(details.notes)}</textarea></div>
+      <div class="err" id="ferr" role="alert"></div>
+    </form>`;
+  pfoot.innerHTML = `<div class="totals" id="ptotals"></div><button class="btn" id="placeBtn">Place order</button>`;
+  renderPanelTotals();
+  document.getElementById("placeBtn").onclick = placeOrder;
+}
+function renderPanelTotals(){
+  const t = totals(), el = document.getElementById("ptotals"); if(!el) return;
+  if(!t.lines){ renderPanel(); return; }
+  el.innerHTML = `<span>${boxes(t.boxes)}</span><b>${money(t.value)}</b>`;
+  for(const id in cart){ const lt = document.getElementById("lt-"+id); if(lt) lt.textContent = money(cart[id]*VARIANTS[id].price); }
+}
+pbody.addEventListener("click", e=>{
+  if(!e.target.closest("#plines")) return;
+  const b = e.target.closest("button[data-act]"); if(!b) return;
+  const id = b.closest(".qslot").dataset.id;
+  const n = cart[id]||0;
+  if(b.dataset.act==="dec" && n<=1){ keepDetails(); setQty(id,0); renderPanel(); renderRowsKeep(); return; }
+  handleQtyClick(e);
+});
+pbody.addEventListener("change", e=>{
+  if(!e.target.closest("#plines")) return;
+  const id = e.target.closest(".qslot").dataset.id, n = parseInt(e.target.value,10)||0;
+  keepDetails(); setQty(id,n); if(!n) renderPanel();
+});
+function renderRowsKeep(){ const y = scrollY; renderRows(); scrollTo(0,y); }
+function keepDetails(){
+  const f = document.getElementById("orderForm"); if(!f) return;
+  for(const k in details){ if(f.elements[k]) details[k]=f.elements[k].value.trim(); }
+  try{ localStorage.setItem("mdh-details", JSON.stringify(details)); }catch(e){}
+}
+
+/* ---- Placing the order ---- */
+function buildOrder(){
+  const d = new Date(), items = {...cart};
+  const ref = "ORD-" + d.toISOString().slice(2,10).replace(/-/g,"") + "-" + Math.random().toString(36).slice(2,6).toUpperCase();
+  const t = totals(items);
+  return {
+    ref, date:d, items, totals:t, details:{...details},
+    payload:{
+      ref, placedAt:d.toISOString(),
+      customer:{...details},
+      items: sortedIds(items).map(id=>({product:VARIANTS[id].name, size:VARIANTS[id].label, boxes:items[id], price:VARIANTS[id].price, lineTotal:round2(items[id]*VARIANTS[id].price)})),
+      totalBoxes:t.boxes, totalValue:t.value
+    }
+  };
+}
+async function sendOrder(payload){
+  const body = JSON.stringify(payload);
+  try{
+    const r = await fetch(CONFIG.orderEndpoint, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body});
+    const j = await r.json();
+    return !!j.ok;
+  }catch(e){
+    // Some browsers block reading the reply; send once more without reading it (the sheet ignores duplicate order numbers).
+    try{ await fetch(CONFIG.orderEndpoint, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body}); return "unconfirmed"; }
+    catch(e2){ return false; }
+  }
+}
+async function placeOrder(){
+  keepDetails();
+  const err = document.getElementById("ferr");
+  if(!details.name){ err.textContent="Please enter your name."; document.getElementById("f-name").focus(); return; }
+  if(!details.phone && !details.email){ err.textContent="Please enter a phone number."; document.getElementById("f-phone").focus(); return; }
+  if(details.email && !/^\S+@\S+\.\S+$/.test(details.email)){ err.textContent="That email doesn't look right."; document.getElementById("f-email").focus(); return; }
+  err.textContent = "";
+  const o = buildOrder();
+  o.payload.summary = summaryText(o);
+  o.sent = false;
+  if(CONFIG.orderEndpoint){
+    const btn = document.getElementById("placeBtn"); btn.disabled = true; btn.textContent = "Sending…";
+    o.sent = await sendOrder(o.payload);
+    if(!o.sent){ btn.disabled=false; btn.textContent="Place order"; err.textContent="The order couldn't be sent. Check your internet connection and try again."; return; }
+  }
+  placed = o;
+  cart = {}; save(); renderRows(); renderBar(); renderPanel();
+}
+
+function summaryText(o){
+  const L = [];
+  L.push(`ORDER ${o.ref}`);
+  L.push(o.date.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}));
+  if(CONFIG.sellerName) L.push(`To: ${CONFIG.sellerName}`);
+  L.push("");
+  L.push(`${o.details.name}${o.details.company?" ("+o.details.company+")":""}`);
+  if(o.details.phone) L.push(`Phone: ${o.details.phone}`);
+  if(o.details.email) L.push(`Email: ${o.details.email}`);
+  if(o.details.address) L.push(`Deliver to: ${o.details.address}`);
+  L.push("");
+  sortedIds(o.items).forEach((id,i)=>{ const v=VARIANTS[id], q=o.items[id];
+    L.push(`${i+1}. ${v.name} ${v.label} — ${boxes(q)} × ${money(v.price)} = ${money(q*v.price)}`); });
+  L.push("");
+  L.push(`Total: ${boxes(o.totals.boxes)}, ${money(o.totals.value)}`);
+  if(o.details.notes){ L.push(""); L.push(`Notes: ${o.details.notes}`); }
+  return L.join("\n");
+}
+
+function renderPlaced(){
+  const o = placed, text = o.payload.summary;
+  const wa = CONFIG.whatsapp ? `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}` : "";
+  document.getElementById("ptitle").textContent = o.sent ? "Order sent" : "Your order";
+  pbody.innerHTML = `
+    <div class="done">
+      <h4>${o.sent ? "Thank you" : "Almost done"}</h4>
+      <p>${o.sent ? `Order ${esc(o.ref)} has been sent. We will confirm shortly.` : `Copy this order and send it to us.`}</p>
+      <pre class="summary" id="sumText">${esc(text)}</pre>
+    </div>`;
+  pfoot.innerHTML = o.sent
+    ? `<button class="btn" id="newOrder">Done</button>`
+    : `<div class="actions">
+         ${wa?`<a class="btn" href="${wa}" target="_blank" rel="noopener">Send on WhatsApp</a>`:""}
+         <button class="btn ${wa?"light":""}" id="copyBtn">Copy order</button>
+       </div>
+       <button class="linkbtn" id="newOrder">Close</button>`;
+  const cb = document.getElementById("copyBtn");
+  if(cb) cb.onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(text); toast("Copied"); }
+    catch(e){ const r=document.createRange(); r.selectNodeContents(document.getElementById("sumText")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Selected. Press Ctrl+C"); }
+  };
+  document.getElementById("newOrder").onclick = closePanel;
+}
+
+/* ---- Filters ---- */
+document.querySelectorAll(".tabs button").forEach(c=>c.onclick=()=>{
+  filter=c.dataset.f; document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", x===c)); renderRows();
+});
+document.getElementById("q").addEventListener("input", e=>{ query=e.target.value; renderRows(); });
+
+let tt; function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("show"),1600); }
+
+renderRows(); renderBar();
+</script>
+</body>
+</html>
