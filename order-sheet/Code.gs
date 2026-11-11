@@ -6,7 +6,7 @@
  * Setup: see README.md in the repo, section "Receiving orders".
  */
 
-const NOTIFY_EMAIL = "";   // your email, e.g. "you@example.com" — leave "" for no email
+const NOTIFY_EMAIL = "theindianwholesaleclub@gmail.com";   // your email, e.g. "you@example.com" — leave "" for no email
 const SHEET_NAME   = "Orders";
 
 const HEADERS = [
