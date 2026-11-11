@@ -50,10 +50,11 @@ If you edit `Code.gs` later, use **Deploy → Manage deployments → Edit → Ve
 ## Other settings in `index.html`
 
 ```js
-clientName: "",   // "Prepared for …" in the red band
-sellerName: "",   // shown on the order summary
+sellerName: "",   // shown in the red band and on the order summary
 whatsapp: "",     // digits only, e.g. "919876543210"; shown as a backup if no orderEndpoint is set
 ```
+
+The header image is `images/web/hero.jpg`.
 
 To change prices or products, edit the `RAW` list in `index.html`. Each line is `["Product name", "100gm", price]`. To add a photo, save a square JPG in `images/web/` named after the product in lowercase with hyphens (`sambhar-masala.jpg`) and add that name to the `IMAGES` list.
 
