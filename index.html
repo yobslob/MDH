@@ -150,7 +150,7 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 24px}
 </head>
 <body>
 
-<div class="band"><div class="wrap"><span id="bandLeft">Wholesale catalogue</span><span>Prices in USD, per box</span></div></div>
+<div class="band"><div class="wrap"><span id="bandLeft">Wholesale catalogue</span><span>Prices in USD, per item</span></div></div>
 
 <header>
   <div class="wrap">
@@ -299,7 +299,7 @@ const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maxim
 const slugOf = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const initials = n => n.split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
 const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const boxes = n => n + (n===1 ? " box" : " boxes");
+const boxes = n => n + (n===1 ? " item" : " items");
 const round2 = n => Math.round(n*100)/100;
 
 const products = [];
@@ -333,9 +333,9 @@ function qtyControl(id, label){
   const n = cart[id]||0;
   if(!n) return `<button type="button" class="add" data-id="${id}" data-act="add">Add</button>`;
   return `<div class="stepper" data-id="${id}">
-    <button type="button" data-act="dec" aria-label="One box less">−</button>
+    <button type="button" data-act="dec" aria-label="One item less">−</button>
     <input type="number" min="0" max="9999" inputmode="numeric" value="${n}" aria-label="Boxes of ${esc(label)}">
-    <button type="button" data-act="inc" aria-label="One box more">+</button>
+    <button type="button" data-act="inc" aria-label="One item more">+</button>
   </div>`;
 }
 function setQty(id, n, focusSel){
@@ -376,7 +376,7 @@ function prodHTML(p){
     <div class="lines">${p.variants.map(v=>`
       <div class="vline">
         <span class="wpill">${v.label}</span>
-        <div class="price">${money(v.price)}<small>per box</small></div>
+        <div class="price">${money(v.price)}<small>per item</small></div>
         <div class="qslot" data-id="${v.id}">${qtyControl(v.id, p.name+" "+v.label)}</div>
       </div>`).join("")}</div>
   </article>`;
