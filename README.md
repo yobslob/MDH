@@ -56,6 +56,6 @@ whatsapp: "",     // digits only, e.g. "919876543210"; shown as a backup if no o
 
 The header image is `images/web/hero.jpg`.
 
-To change prices or products, edit the `RAW` list in `index.html`. Each line is `["Product name", "100gm", price]`. To add a photo, save a square JPG in `images/web/` named after the product in lowercase with hyphens (`sambhar-masala.jpg`) and add that name to the `IMAGES` list.
+To change prices or products, edit the `RAW` list in `index.html`. Each line is `["Product name", "100gm", price]`. To add a photo, save a square JPG in `images/web/` (e.g. `biryani-pulao.jpg`) and add `"Biryani Pulao":"biryani-pulao"` to the `IMG` list.
 
 Note: the prices in the sheet come from the page, so the sheet trusts the page. That's fine for a link you send to one client; check totals before invoicing.

@@ -206,43 +206,86 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 24px}
 const CONFIG = {
   // Google Apps Script web-app URL that saves orders to your Google Sheet (see README.md).
   // Leave empty and the order screen shows a "Copy order" button instead.
-  orderEndpoint: "https://script.google.com/macros/s/AKfycbyRCBS8q-KPGQL_iwMCLVxgMHS5AgxXN86fHzHjM3B3sx25VhjH6A-3sOQcnnWQdVvN/exec",
+  orderEndpoint: "https://script.google.com/macros/s/AKfycbyx4O-pPvCK89bQlcOsR2LYHBcL6bpEnxKLs5O8jGBQLVeUS07A8SBvwgEEenqZti3O/exec",
   sellerName: "Indian Wholesale Club",          // appears on the order summary
   whatsapp: "15513641945",            // digits only, e.g. "919876543210" → backup "Send on WhatsApp" button
   imageFolder: "images/web"
 };
 /* ======================================================== */
 
+/* Catalogue: IWC MDH November 2026 pricing (product name, net weight, selling price in USD). */
 const RAW = [
-["Amchur Powder","100gm",2.61],
-["Chana Masala","100gm",2.67],["Chana Masala","500gm",13.26],
-["Chat Masala","500gm",13.26],
-["Chicken Masala","100gm",2.67],
-["Dal Makhani Masala","100gm",2.55],
-["Deggi Mirch","100gm",2.97],["Deggi Mirch","500gm",14.78],["Deggi Mirch","1000gm",29.93],
-["Dhania Powder","100gm",2.21],["Dhania Powder","500gm",10.99],
-["Garam Masala","100gm",2.89],["Garam Masala","500gm",14.21],
-["Haldi Powder","100gm",2.26],["Haldi Powder","500gm",11.23],
-["Hing","10gm",1.26],
-["Jal Jeera Masala","100gm",2.49],
-["Jeera Powder","100gm",2.59],
-["Kali Mirch Powder","100gm",3.49],
-["Kashmiri Mirch","100gm",3.00],
-["Kasuri Methi","25gm",0.73],["Kasuri Methi","50gm",1.42],["Kasuri Methi","100gm",2.74],["Kasuri Methi","1000gm",25.11],
-["Kitchen King","100gm",2.74],["Kitchen King","500gm",13.59],["Kitchen King","1000gm",27.09],
-["Lal Mirch Powder","100gm",2.53],["Lal Mirch Powder","500gm",12.03],
-["Meat Masala","100gm",2.74],["Meat Masala","500gm",13.59],
-["Meat Masala Hanger","7gm",0.17],
-["Pav Bhaji Masala","100gm",2.68],
-["Rajma Masala","100gm",2.66],
-["Sabzi Masala","100gm",2.57],
-["Sambhar Masala","100gm",2.60],
-["Shahi Paneer Masala","100gm",2.83],
-["White Pepper","100gm",3.97]
+["Amchur Powder", "100gm", 2.23],
+["Biryani Pulao", "100gm", 2.25],
+["Channa Masala", "100gm", 2.3],
+["Channa Masala", "500gm", 11.43],
+["Chutney Podina", "100gm", 2.18],
+["Chicken Masala", "100gm", 2.29],
+["Chilli Powder (Deggi)", "100gm", 2.59],
+["Chilli Powder (Deggi)", "500gm", 12.86],
+["Chilli Powder (Kashmiri)", "100gm", 2.6],
+["Chunkey Chat Masala", "100gm", 2.29],
+["Chunkey Chat Masala", "500gm", 11.39],
+["Dal Makhani Masala", "100gm", 2.19],
+["Garam Masala", "100gm", 2.5],
+["Garam Masala", "500gm", 12.44],
+["Hing Compound", "5gm", 0.62],
+["Hing Compound", "10gm", 1.18],
+["Jeera Sip Masala", "100gm", 2.13],
+["Kasuri Methi Peacock", "25gm", 0.62],
+["Kasuri Methi Peacock", "50gm", 1.21],
+["Kasuri Methi Peacock", "100gm", 2.34],
+["Kasuri Methi Peacock", "500gm", 10.92],
+["Kasuri Methi Peacock", "1000gm", 21.34],
+["Kitchen King Masala", "100gm", 2.35],
+["Kitchen King Masala", "500gm", 11.68],
+["Meat Masala", "100gm", 2.35],
+["Meat Masala", "500gm", 11.68],
+["Pani Puri Masala", "100gm", 2.12],
+["Pav Bhaji Masala", "100gm", 2.3],
+["Rajmah Masala", "100gm", 2.29],
+["Sabzi Masala", "100gm", 2.18],
+["Sambar Masala", "100gm", 2.23],
+["Shahi Paneer Masala", "100gm", 2.44],
+["Tandoori Chicken Masala", "100gm", 2.3],
+["T Plus", "25gm", 0.8],
+["White Pepper Powder", "100gm", 3.43],
+["Hawan Samagri", "200gm", 3.36],
+["Hawan Samagri", "500gm", 8.34],
+["Dhania Powder", "500gm", 9.28],
+["Haldi Powder", "500gm", 9.49],
+["Jeera Powder", "100gm", 2.2],
+["Jeera Powder", "500gm", 10.92],
+["Lal Mirch Powder", "500gm", 10.21]
 ];
-const SPICES = new Set(["Amchur Powder","Deggi Mirch","Dhania Powder","Haldi Powder","Hing","Jeera Powder","Kali Mirch Powder","Kashmiri Mirch","Kasuri Methi","Lal Mirch Powder","White Pepper"]);
-const NOTES = {"Amchur Powder":"Dried mango","Deggi Mirch":"Red chilli","Dhania Powder":"Coriander","Haldi Powder":"Turmeric","Hing":"Asafoetida","Jeera Powder":"Cumin","Kali Mirch Powder":"Black pepper","Kashmiri Mirch":"Mild red chilli","Kasuri Methi":"Dried fenugreek","Lal Mirch Powder":"Red chilli","Meat Masala Hanger":"Sachet strip","White Pepper":"Safed mirch"};
-const IMAGES = new Set(["amchur-powder","chana-masala","chat-masala","chicken-masala","dal-makhani-masala","deggi-mirch","dhania-powder","garam-masala","haldi-powder","hing","jal-jeera-masala","jeera-powder","kali-mirch-powder","kashmiri-mirch","kasuri-methi","kitchen-king","lal-mirch-powder","meat-masala","meat-masala-hanger","pav-bhaji-masala","rajma-masala","sabzi-masala","sambhar-masala","shahi-paneer-masala","white-pepper"]);
+const SPICES = new Set(["Amchur Powder", "Chilli Powder (Deggi)", "Chilli Powder (Kashmiri)", "Dhania Powder", "Haldi Powder", "Hing Compound", "Jeera Powder", "Kasuri Methi Peacock", "Lal Mirch Powder", "White Pepper Powder"]);
+const OTHER  = new Set(["Hawan Samagri"]);   // not a spice or masala: shows under "All" only
+const NOTES = {"Amchur Powder": "Dried mango", "Dhania Powder": "Coriander", "Haldi Powder": "Turmeric", "Hing Compound": "Asafoetida", "Jeera Powder": "Cumin", "Kasuri Methi Peacock": "Dried fenugreek leaves", "Lal Mirch Powder": "Red chilli", "Chutney Podina": "Mint", "T Plus": "Tea masala", "Hawan Samagri": "For havan / puja"};
+// Product name -> photo in images/web (without .jpg). Products not listed show their initials.
+const IMG = {
+"Amchur Powder": "amchur-powder",
+"Channa Masala": "chana-masala",
+"Chicken Masala": "chicken-masala",
+"Chilli Powder (Deggi)": "deggi-mirch",
+"Chilli Powder (Kashmiri)": "kashmiri-mirch",
+"Chunkey Chat Masala": "chat-masala",
+"Dal Makhani Masala": "dal-makhani-masala",
+"Garam Masala": "garam-masala",
+"Hing Compound": "hing",
+"Kasuri Methi Peacock": "kasuri-methi",
+"Kitchen King Masala": "kitchen-king",
+"Meat Masala": "meat-masala",
+"Pav Bhaji Masala": "pav-bhaji-masala",
+"Rajmah Masala": "rajma-masala",
+"Sabzi Masala": "sabzi-masala",
+"Sambar Masala": "sambhar-masala",
+"Shahi Paneer Masala": "shahi-paneer-masala",
+"White Pepper Powder": "white-pepper",
+"Dhania Powder": "dhania-powder",
+"Haldi Powder": "haldi-powder",
+"Jeera Powder": "jeera-powder",
+"Lal Mirch Powder": "lal-mirch-powder"
+};
 
 const grams = s => parseInt(s,10);
 const fmtSize = s => { const g = grams(s); return g >= 1000 ? (g/1000) + " kg" : g + " g"; };
@@ -256,20 +299,20 @@ const round2 = n => Math.round(n*100)/100;
 const products = [];
 RAW.forEach(([name,size,price])=>{
   let p = products.find(x=>x.name===name);
-  if(!p){ p = {name, slug:slugOf(name), type:SPICES.has(name)?"spice":"blend", variants:[]}; products.push(p); }
+  if(!p){ p = {name, slug:slugOf(name), img:IMG[name]||"", type:SPICES.has(name)?"spice":OTHER.has(name)?"other":"blend", variants:[]}; products.push(p); }
   p.variants.push({id:slugOf(name+"-"+size), size, label:fmtSize(size), price});
 });
 products.forEach(p=>p.variants.sort((a,b)=>grams(a.size)-grams(b.size)));
 products.sort((a,b)=>a.name.localeCompare(b.name));
-const VARIANTS = {}; products.forEach(p=>p.variants.forEach(v=>VARIANTS[v.id]={...v,name:p.name,slug:p.slug}));
+const VARIANTS = {}; products.forEach(p=>p.variants.forEach(v=>VARIANTS[v.id]={...v,name:p.name,slug:p.slug,img:p.img}));
 
-function thumbHTML(slug, name){
-  if(IMAGES.has(slug)) return `<div class="thumb"><img src="${CONFIG.imageFolder}/${slug}.jpg" alt="${esc(name)}" loading="lazy" onerror="this.parentNode.classList.add('ph-bg');this.outerHTML='<span class=&quot;ph&quot;>${initials(name)}</span>'"></div>`;
+function thumbHTML(img, name){
+  if(img) return `<div class="thumb"><img src="${CONFIG.imageFolder}/${img}.jpg" alt="${esc(name)}" loading="lazy" onerror="this.parentNode.classList.add('ph-bg');this.outerHTML='<span class=&quot;ph&quot;>${initials(name)}</span>'"></div>`;
   return `<div class="thumb ph-bg"><span class="ph" aria-hidden="true">${initials(name)}</span></div>`;
 }
 
 /* ---- State ---- */
-const KEY = "mdh-order-v3";
+const KEY = "mdh-order-nov26";
 let cart = {};
 try{ cart = JSON.parse(localStorage.getItem(KEY)||"{}") || {}; }catch(e){ cart = {}; }
 Object.keys(cart).forEach(k=>{ if(!VARIANTS[k] || !(cart[k]>0)) delete cart[k]; });
@@ -322,7 +365,7 @@ function handleQtyChange(e){
 const rowsEl = document.getElementById("rows");
 function prodHTML(p){
   return `<article class="prod">
-    ${thumbHTML(p.slug,p.name)}
+    ${thumbHTML(p.img,p.name)}
     <div class="pname"><h2>${p.name}</h2>${NOTES[p.name]?`<div class="note">${NOTES[p.name]}</div>`:""}</div>
     <div class="lines">${p.variants.map(v=>`
       <div class="vline">
@@ -377,7 +420,7 @@ function renderPanel(){
   if(!ids.length){ pbody.innerHTML = `<p class="empty">Your order is empty.</p>`; pfoot.innerHTML=""; return; }
   pbody.innerHTML = `<div id="plines">${ids.map(id=>{ const v=VARIANTS[id];
     return `<div class="line">
-      ${thumbHTML(v.slug,v.name)}
+      ${thumbHTML(v.img,v.name)}
       <div><div class="nm">${v.name}</div><div class="meta">${v.label} · ${money(v.price)} · <b id="lt-${id}">${money(cart[id]*v.price)}</b></div></div>
       <div class="qslot" data-id="${id}">${qtyControl(id, v.name+" "+v.label)}</div>
     </div>`;}).join("")}</div>
